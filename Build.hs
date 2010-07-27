@@ -74,6 +74,7 @@ makeCabal iomode cs = writeFile "h4sh.cabal" $ unlines $
   , "Maintainer:          dons@cse.unsw.edu.au"
   , "Build-Depends:       base >= 4, hint, regex-compat, bytestring"
   , "Exposed-modules:     H4SH.List"
+  , "Build-Type:          Simple"
   , ""
   ] ++ map (executable iomode) cs
 
