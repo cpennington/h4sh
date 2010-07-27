@@ -30,7 +30,7 @@ import System.Exit
 import System.Environment
 
 version :: [Char]
-version = "0.2"
+version = "0.3"
 
 data IOMode = MPack | MList
     deriving Eq
