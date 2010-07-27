@@ -1,0 +1,142 @@
+--
+-- Examples for h4sh
+--
+-- Authors: Don Stewart
+--          Thomas Jaeger
+--
+-- Inspiration for this document based on "HANDY ONE-LINERS FOR SED",
+-- compiled by Eric Pement <http://sed.sourceforge.net/sed1line.txt>
+--
+--
+-- Most commands (other than unfolds) read from either a file argument or stdin
+--
+
+-- open a file
+i
+
+-- first line of a file/pipe (head -1)
+hd
+
+-- last line of a file/pipe (tail -1)
+last
+
+-- first @n@ lines (head -7)
+take 7
+
+-- drop first @n@ lines
+drop 7
+
+-- remove the first line
+tl
+
+-- remove the last line
+init
+
+-- reverse a file (tac)
+reverse
+
+-- print a string (echo)
+show
+
+-- find lines that match /pattern/ (grep)
+filter 'matches "pattern"'
+
+-- find lines that don't match /pattern/ (grep -v)
+filter '\s->not(matches"pattern"s)'
+
+-- replace all occurences of string1 with string2
+map 'replace "string1" "string2'
+
+-- add a character to the end of each line
+map "snoc ','"
+
+-- group lines of input that are equal
+group
+
+-- join two files side by side (paste)
+zp f g
+
+-- add a new line to the head of a file
+cons "The first line"
+
+-- double space a file
+intersperse ''
+
+-- an infinite sequence
+iterate 'show.(+1).read' 0
+unfoldr 'Just. ap(,)(show.(1+).read)' 1
+
+-- a finite sequence
+iterate 'show.(+1).read' 0 | take 10
+
+-- repeat a string
+rpt str
+
+-- number each line of a file on left
+zp <(iterate 'show.(+1).read' 0)
+ap 'unlines.zipWith((.(" "++)).shows)[1..].lines'
+
+-- count lines (wc -l)
+length
+
+-- remove duplicate lines (uniq)
+nub
+
+-- sort
+srt
+
+-- join lines of a file
+concat
+unwords
+foldl '(++)'
+
+-- print only lines 65 chars long
+filter '(65==).length'
+
+-- print only lines less than 65 chars
+filter '(65>=).length'
+
+-- print only lines greater than 65 chars
+filter '(65<).length'
+
+-- find all lines that equal "str"
+filter '=="str"'
+
+-- remove all lines that equal "str"
+filter '/="str"'
+
+-- remove the first occurence of the line "str"
+delete str
+
+-- find line 10
+index 10
+
+-- find the indices of a given line
+indices str
+
+-- reverse each line (rev)
+map reverse
+
+-- count lengths of each line
+map show.length
+
+-- upper case
+map 'map toUpper'
+
+-- lower case
+map 'map toLower'
+
+-- remove leading space from each line
+map "dropWhile isSpace"
+
+-- remove tailing whitespace
+map "reverse.dropWhile isSpace.reverse"
+
+-- center each line of a file
+map "\s->(\t->t++s++t)(replicate(div(80-length s)2)' ')"
+
+-- reverse words in a string, but not the string itself
+words one two three | map reverse | unwords
+
+-- turn a string into a list of string, suitable for passing to list functions
+words one two three

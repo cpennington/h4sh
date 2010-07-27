@@ -1,0 +1,137 @@
+Mapping to Haskell:
+
+    [a]     <-> newline separate strings
+    a       <-> a string
+    (a,a)   <-> white space separated strings
+
+    `|' maps to function composition for referentially transparent code
+    filenames map to named variables
+
+------------------------------------------------------------------------
+
+Both Functor,Monad IO  and Functor,Monad List hold.
+
+The laws for functor and Monad are:
+
+Monad:
+
+    class  Monad m  where
+        (>>=)       :: forall a b. m a -> (a -> m b) -> m b
+        (>>)        :: forall a b. m a -> m b -> m b
+        return      :: a -> m a
+
+    > return a >>= k           ==  k a
+    > m >>= return             ==  m
+    > m >>= (\x -> k x >>= h)  ==  (m >>= k) >>= h
+
+Functor:
+
+    class  Functor f  where
+        fmap        :: (a -> b) -> f a -> f b
+
+    > fmap id       ==  id
+    > fmap (f . g)  ==  fmap f . fmap g
+
+And instances of both also need to obey:
+
+    > fmap f xs  ==  xs >>= return . f
+
+------------------------------------------------------------------------
+
+* The shell as an instance of Functor IO
+
+Following Oleg[ref], we require that named variables correspond to
+filenames in our language, and we consider pipes as writing to temporary
+files.
+
+The IO instance of Monad is defined as:
+
+    instance  Monad IO  where
+        m >> k      =  m >>= \ _ -> k
+
+        m >>= k     = bindIO m k
+            where
+                bindIO (IO m) k = IO ( \ s ->
+                  case m s of 
+                    (# new_s, a #) -> unIO (k a) new_s
+                  )
+        return x	= returnIO x
+
+The IO instance of Functor is defined as:
+
+    m >>= k     = bindIO m k
+    fail s	    = failIO s
+
+failIO :: String -> IO a
+failIO s = ioError (userError s)
+
+    instance  Functor IO where
+       fmap f x = x >>= (return . f)
+
+If we take 
+    
+
+* And as Monad IO
+
+------------------------------------------------------------------------
+
+* Shell programming in Functor List
+
+
+* And the Monad List
+
+------------------------------------------------------------------------
+
+if we take:
+    return  == i
+    >>=     == |
+and filenames as variable names (including temp files in pipes), then (due to Oleg):
+    i a | k       == k a
+    m | i         == m
+    m | (k x | h) == (m | k) | h  
+
+Instances of both 'Monad' and 'Functor' should additionally satisfy the law:
+
+> fmap f xs  ==  xs >>= return . f
+
+i.e.
+    map f xs == i xs | ap f | i
+which holds.
+
+------------------------------------------------------------------------
+
+Now, lets see if we case use the list monad directly
+
+------------------------------------------------------------------------
+
+Todo, add bind, return for List
+
+    Monad:
+
+instance Monad [] where
+    m >>= k             = foldr ((++) . k) [] m
+    m >> k              = foldr ((++) . (\ _ -> k)) [] m
+    return x            = [x]
+    fail _		        = []
+\end{code}
+        
+List monad:
+
+    return x   = words x/ show x/ echo x            or
+    m >>= k    = foldr '((++) . k)' m               or  map k m | concat
+    m >>  k    = foldr '((++) . (\ _ -> k))' m      or  map 'const k' m | concat
+
+The usual list properties should still apply, for example:
+If we treat the unix command 'map' as an implementation of map, and
+take:
+
+    instance Functor [] where
+        fmap = map
+
+then the usual laws for Functor [String] apply on the command line:
+
+    Functor:
+        map id        == i
+        map '(f . g)' == map f | map g
+
+So you can either program in the IO or List monads!

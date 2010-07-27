@@ -1,0 +1,89 @@
+------------------------------------------------------------------------
+                                  h4sh
+------------------------------------------------------------------------
+
+Requirements:
+        > make (GNU or BSD)
+        > The Glasgow Haskell Compiler
+        > Cabal
+        > hs-plugins:
+                darcs get http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+        > fps 0.5:
+                darcs get http://www.cse.unsw.edu.au/~dons/code/fps
+
+Building:
+        > PREFIX=/tmp make
+        > make install
+
+also
+        > make check  (you may need to adjust the variable `GM4' in the
+                       toplevel Makefile, or in the environment)
+
+------------------------------------------------------------------------
+
+Manifesto:
+
+Unix is all about programs that do one thing, and one thing well.
+Unfortunately, over time, the common unix text processing commands have
+become bloated and silly, with rather arbitrary features for programs
+that should have simple semantics (consider uniq and wc outputting
+leading space, or cut indexing fields from 1).
+
+On the other hand Haskell has a powerful and beautiful List library for
+processing text. By exposing the Haskell List library as a set of shell
+utilities, and utlising function composition via pipes, we can program
+in the shell using these precise, clean Haskell functions.
+
+To this end, h4sh makes the functions of this library available as unix
+shell commands. 
+
+For example:
+        take 100 data | map show.length | sort | reverse | head
+
+Commands are generated from a description of their type. h4sh utilities
+thus have standard behaviour, for example, all functions read from stdin
+or file arguments (meaning that `id' is equivalent `cat'), and arguments
+are handled in the order they appear in the function type signature.
+
+h4sh currently compiles functions of the following types:
+
+        a      -> a
+        a     -> [a]
+        [a]   -> a
+        [a]   -> Int
+        [a]   -> [a]
+        [[a]] -> [a]
+        a     -> [a]  -> [a]
+        a     -> [a]  -> [Int]
+        Int   -> [a]  -> [a]
+        [a]   -> [a]  -> [a]
+        (a -> a)      -> a   -> a
+        (a -> a)      -> a   -> [a]
+        (a -> a)      -> [a] -> [a]
+        (a -> a)      -> [a] -> a
+        (a -> Bool)   -> [a] -> [a]
+        (a -> a -> a) -> [a] -> a
+        (a -> Maybe (a, a))  -> a -> [a]
+
+The following functions are provided as shell commands:
+
+        (!!) ($) (++) (:) (\\)
+        concat concatMap cycle
+        delete drop dropWhile
+        elemIndices filter foldl
+        foldr group head id init
+        insert intersect intersperse
+        iterate last length map
+        maximum minimum nub repeat
+        reverse show sort tail
+        take takeWhile transpose
+        unfoldr union words zip
+
+Higher order functions like map are handled using runtime evaluation,
+provided by the hs-plugins library, allowing arbitrary Haskell code to
+be evaluated, e.g. for map and filter.
+
+h4sh also provides a library H4SH.List of useful String and Regex
+functions. 
+
+h4sh was written during a cold, but sunny weekend in August 2005.
