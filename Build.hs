@@ -72,8 +72,8 @@ makeCabal iomode cs = writeFile "h4sh.cabal" $ unlines $
   , "License-file:        LICENSE"
   , "Author:              Don Stewart"
   , "Maintainer:          dons@cse.unsw.edu.au"
-  , "Build-Depends:       base, plugins>=0.9.10, fps>=0.6"
-  , "Exposed-modules:	  H4SH.List"
+  , "Build-Depends:       base >= 4, hint, regex-compat, bytestring"
+  , "Exposed-modules:     H4SH.List"
   , ""
   ] ++ map (executable iomode) cs
 
@@ -173,7 +173,7 @@ dropArgs t = t
 -- Only import System.Eval for binaries that actually need it
 --
 needsEval :: Type -> Doc
-needsEval ((_ `To` _) `To` (_ `To` _)) = text "import System.Eval"
+needsEval ((_ `To` _) `To` (_ `To` _)) = text "import Language.Haskell.Interpreter"
 needsEval _ = empty
 
 ------------------------------------------------------------------------
@@ -283,10 +283,10 @@ eflag = unlines
 -- unsafeEval is ok, as we provide the type. it's also 7% faster
 evalCode :: [Char] -> String
 evalCode ty = unlines
-  [ " a <- do m' <- unsafeEval (\"((\"++e ++\") :: "++ty++")\") context"
-  , "         case m' of"
-  , "              Nothing -> error \"compilation failed\""
-  , "              Just v  -> return (v :: "++ty++")" ]
+  [ " interpreterResult <- runInterpreter $ interpret e (as :: "++ty++")"
+  , " a <- case interpreterResult of"
+  , "         Left e -> error $ \"compile error: \" ++ show e"
+  , "         Right result -> return result" ]
 
 context :: String
 context = unlines
