@@ -28,19 +28,18 @@ all: build
 build:
 	$(GHC) --make -o build Build.hs
 	./build $(IO_MODE)
-	$(GHC) --make -o setup Setup.hs
-	./setup configure --prefix=$(PREFIX)
-	./setup build
+	cabal configure
+	cabal build
 
 install:
-	./setup install
+	cabal install
 
 clean: 
 	./build clean
-	./setup clean
+	cabal clean
 	rm -rf *.hi *.o *~
 	rm -rf h4sh.cabal
-	rm -rf build setup dist
+	rm -rf build dist
 	cd testsuite && $(MAKE) clean
 
 check:
