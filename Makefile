@@ -28,7 +28,7 @@ all: build
 build:
 	$(GHC) --make -o build Build.hs
 	./build $(IO_MODE)
-	cabal configure
+	cabal configure --enable-shared
 	cabal build
 
 install:

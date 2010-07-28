@@ -82,7 +82,7 @@ executable :: IOMode -> Command -> String
 executable mode (Command _ n _ _ _) = unlines $
   [ "executable:          " ++ n
   , "main-is:             " ++ n ++ ".hs"
-  , "ghc-options:         -O2 -funbox-strict-fields -fglasgow-exts -threaded " ]
+  , "ghc-options:         -O2 -funbox-strict-fields -fglasgow-exts -threaded -dynamic" ]
 
 ------------------------------------------------------------------------
 --
