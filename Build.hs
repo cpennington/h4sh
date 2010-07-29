@@ -284,16 +284,18 @@ eflag = unlines
 -- unsafeEval is ok, as we provide the type. it's also 7% faster
 evalCode :: [Char] -> String
 evalCode ty = unlines
-  [ " interpreterResult <- runInterpreter $ interpret e (as :: "++ty++")"
+  [ " interpreterResult <- runInterpreter $ do"
+  , "     setImportsQ context"
+  , "     interpret e (as :: "++ty++")"
   , " a <- case interpreterResult of"
   , "         Left e -> error $ \"compile error: \" ++ show e"
   , "         Right result -> return result" ]
 
 context :: String
 context = unlines
-  [ " let context = prehier ++ datas ++ qualifieds ++ controls ++ misc"
+  [ " let context = zip (prehier ++ datas ++ controls ++ misc) (repeat Nothing) ++ qualifieds"
   , "     prehier = [\"Char\", \"List\", \"Maybe\", \"Numeric\", \"Random\" ]"
-  , "     qualifieds = [\"qualified Data.Map as M\", \"qualified Data.Set as S\"]"
+  , "     qualifieds = [(\"Data.Map\", Just \"M\"), (\"Data.Set\", Just \"S\")]"
   , "     datas   = map (\"Data.\" ++) ["
   , "                   \"Bits\", \"Bool\", \"Char\", \"Either\","
   , "                   \"Graph\", \"Int\", \"Ix\", \"List\","
